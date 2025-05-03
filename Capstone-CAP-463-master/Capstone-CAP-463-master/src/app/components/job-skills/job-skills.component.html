@@ -1,0 +1,105 @@
+<div class="container mt-5 mb-5">
+  <div class="job-skills-container">
+    <!-- Back button -->
+    <button class="btn btn-outline-primary mb-4" (click)="goBack()">
+      <i class="fas fa-arrow-left me-2"></i>Back to Jobs
+    </button>
+    
+    <!-- Job header -->
+    <div class="card shadow-sm border-0 mb-4">
+      <div class="card-body p-4">
+        <h2 class="gradient-text mb-2">{{ jobTitle }}</h2>
+        <h5 class="text-muted mb-3">{{ jobCompany }}</h5>
+        
+        <div class="d-flex gap-2 mt-3">
+          <button class="btn btn-primary apply-btn" (click)="applyForJob()">
+            <i class="fas fa-external-link-alt me-2"></i>Apply Now
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Loading spinner -->
+    <div *ngIf="isLoading" class="text-center my-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p class="mt-2 text-muted">Loading required skills...</p>
+    </div>
+    
+    <!-- Error message -->
+    <div *ngIf="errorMessage" class="alert alert-danger">
+      <i class="fas fa-exclamation-circle me-2"></i>{{ errorMessage }}
+    </div>
+    
+    <!-- No skills message -->
+    <div *ngIf="!isLoading && !errorMessage && requiredSkills.length === 0" class="alert alert-info">
+      <i class="fas fa-info-circle me-2"></i>No required skills information available for this job.
+    </div>
+    
+    <!-- Skills content -->
+    <div *ngIf="!isLoading && requiredSkills.length > 0" class="row">
+      <!-- Required Skills -->
+      <div class="col-md-12 mb-4">
+        <div class="card h-100 shadow-sm border-0 card-hover-effect">
+          <div class="card-header py-3">
+            <h4 class="mb-0"><i class="fas fa-clipboard-list me-2"></i>Required Skills</h4>
+          </div>
+          <div class="card-body p-4">
+            <p class="text-muted mb-4">These are the skills required for this position based on real-time job market data.</p>
+            
+            <div class="skills-grid">
+              <div class="skill-item" *ngFor="let skill of requiredSkills">
+                <span class="skill-badge">{{ skill }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Skills Comparison (if user has uploaded a resume) -->
+      <div class="col-md-6 mb-4" *ngIf="userSkills.length > 0">
+        <div class="card h-100 shadow-sm border-0 card-hover-effect">
+          <div class="card-header py-3 bg-success text-white">
+            <h4 class="mb-0"><i class="fas fa-check-circle me-2"></i>Skills You Have</h4>
+          </div>
+          <div class="card-body p-4">
+            <p class="text-muted mb-4">Based on your resume, you already have these required skills.</p>
+            
+            <div *ngIf="matchedSkills.length > 0" class="skills-grid">
+              <div class="skill-item" *ngFor="let skill of matchedSkills">
+                <span class="skill-badge bg-success">{{ skill }}</span>
+              </div>
+            </div>
+            
+            <div *ngIf="matchedSkills.length === 0" class="alert alert-warning">
+              <i class="fas fa-exclamation-triangle me-2"></i>None of your current skills match the job requirements.
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Missing Skills (if user has uploaded a resume) -->
+      <div class="col-md-6 mb-4" *ngIf="userSkills.length > 0">
+        <div class="card h-100 shadow-sm border-0 card-hover-effect">
+          <div class="card-header py-3 bg-warning">
+            <h4 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Skills to Develop</h4>
+          </div>
+          <div class="card-body p-4">
+            <p class="text-muted mb-4">Consider developing these skills to improve your chances for this position.</p>
+            
+            <div *ngIf="missingSkills.length > 0" class="skills-grid">
+              <div class="skill-item" *ngFor="let skill of missingSkills">
+                <span class="skill-badge bg-warning text-dark">{{ skill }}</span>
+              </div>
+            </div>
+            
+            <div *ngIf="missingSkills.length === 0" class="alert alert-success">
+              <i class="fas fa-check-circle me-2"></i>Great! You have all the required skills for this job.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

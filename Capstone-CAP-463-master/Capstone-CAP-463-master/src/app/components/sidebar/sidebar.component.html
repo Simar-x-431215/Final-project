@@ -1,0 +1,59 @@
+<div class="sidebar" [class.expanded]="isExpanded" [class.collapsed]="!isExpanded">
+  <div class="sidebar-content">
+    <div class="logo">
+      <i class="fas fa-file-alt"></i>
+      <span>SkillSync</span>
+    </div>
+    
+    <ul class="nav-menu">
+      <li class="nav-item">
+        <a class="nav-link" routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+          <i class="fas fa-home"></i>
+          <span>Home</span>
+        </a>
+      </li>
+      
+      <li class="nav-item">
+        <a class="nav-link" routerLink="/results" routerLinkActive="active">
+          <i class="fas fa-chart-bar"></i>
+          <span>Results</span>
+        </a>
+      </li>
+      
+      <li class="nav-item">
+        <a class="nav-link" routerLink="/jobs" routerLinkActive="active">
+          <i class="fa-solid fa-briefcase"></i>
+          <span>Jobs</span>
+        </a>
+      </li>
+      
+      <li class="nav-item">
+        <a class="nav-link" routerLink="/uploads" routerLinkActive="active">
+          <i class="fas fa-file-upload"></i>
+          <span>My Uploads</span>
+        </a>
+      </li>
+      
+      <li class="nav-item">
+        <a class="nav-link" routerLink="/cv-templates" routerLinkActive="active">
+          <i class="fas fa-file-alt"></i>
+          <span>CV Templates</span>
+        </a>
+      </li>
+    </ul>
+    
+    <div class="user-section">
+      <div class="user-info">
+        <div class="user-avatar">S</div>
+        <div class="user-details">
+          <p class="user-name">Sam Smith</p>
+          <p class="user-email">sam&#64;example.com</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<button class="mobile-toggle" (click)="toggleSidebar()">
+  <i class="fas fa-bars"></i>
+</button>

@@ -1,0 +1,101 @@
+<div class="content-wrapper">
+  <div class="container">
+    <h1 class="mb-4 gradient-text">CV Templates</h1>
+    <p class="lead mb-5">Choose from our collection of professionally designed CV templates to enhance your job application.</p>
+    
+    <!-- Error message display -->
+    <div *ngIf="errorMessage" class="alert alert-danger mb-4 fade-in">
+      <i class="fas fa-exclamation-circle me-2"></i>
+      {{ errorMessage }}
+    </div>
+    
+    <!-- Loading Indicator -->
+    <div *ngIf="isLoading" class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p class="mt-2 text-muted">Loading CV templates...</p>
+    </div>
+    
+    <!-- Search and Filter Section -->
+    <div class="row mb-4" *ngIf="!isLoading">
+      <div class="col-md-6">
+        <div class="input-group mb-3">
+          <span class="input-group-text"><i class="fas fa-search"></i></span>
+          <input type="text" class="form-control" placeholder="Search templates..." [(ngModel)]="searchQuery" (keyup)="applySearch()">
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="category-filter">
+          <div class="btn-group" role="group">
+            <button *ngFor="let category of categories" 
+                    class="btn" 
+                    [ngClass]="{'btn-primary': selectedCategory === category, 'btn-outline-primary': selectedCategory !== category}"
+                    (click)="filterByCategory(category)">
+              {{ category }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Templates Display Section -->
+    <div class="row" *ngIf="!isLoading">
+      <div class="col-lg-4 col-md-6 mb-4" *ngFor="let template of filteredTemplates">
+        <div class="card template-card">
+          <!-- Template Preview with Document Preview Style -->
+          <div class="card-img-top template-preview" [style.background]="template.color">
+            <div class="template-preview-content">
+              <div class="preview-header">
+                <div class="header-line"></div>
+                <div class="header-line short"></div>
+              </div>
+              <div class="preview-body">
+                <div class="body-line"></div>
+                <div class="body-line short"></div>
+                <div class="body-line medium"></div>
+                <div class="body-column-container">
+                  <div class="body-column left">
+                    <div class="body-line"></div>
+                    <div class="body-line short"></div>
+                    <div class="body-line medium"></div>
+                  </div>
+                  <div class="body-column right">
+                    <div class="body-line"></div>
+                    <div class="body-line short"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Template Information -->
+          <div class="card-body">
+            <div class="template-info">
+              <h5 class="card-title">{{ template.name }}</h5>
+              <span class="badge badge-{{ template.category.toLowerCase() }}">{{ template.category }}</span>
+            </div>
+            <p class="card-text">{{ template.description }}</p>
+            <div class="template-features">
+              <span class="feature-tag"><i class="fas fa-check-circle"></i> ATS Friendly</span>
+              <span class="feature-tag"><i class="fas fa-check-circle"></i> Professional</span>
+            </div>
+            <button class="btn btn-primary btn-download w-100 mt-3" (click)="downloadTemplate(template.file_name)">
+              <i class="fas fa-download me-2"></i> Download Template
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- No Results Message -->
+    <div class="row" *ngIf="filteredTemplates.length === 0 && !isLoading">
+      <div class="col text-center py-5">
+        <i class="fas fa-search fa-3x mb-3 text-muted"></i>
+        <h4>No templates found</h4>
+        <p>Try adjusting your search or filter criteria</p>
+        <button class="btn btn-outline-primary mt-2" (click)="filterByCategory('All')">View All Templates</button>
+      </div>
+    </div>
+  </div>
+</div>

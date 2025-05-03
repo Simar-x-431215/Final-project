@@ -1,0 +1,305 @@
+<div class="container mt-5 mb-5">
+  <!-- No uploads message with engaging design -->
+  <div
+    *ngIf="!isLoading && fileUploads.length === 0 && !uploadSuccess"
+    class="card shadow-lg border-0 mb-5 rounded-lg fade-in"
+  >
+    <div class="card-body p-5 text-center">
+      <div class="upload-icon-container mb-4 pulse">
+        <i class="fas fa-file-upload text-primary"></i>
+      </div>
+      <h2 class="gradient-text mb-3">Let's analyze your resume</h2>
+      <p class="text-muted mb-4">Upload your resume to get personalized job recommendations, skills analysis, and career insights.</p>
+      
+      <!-- File upload section with modern design -->
+      <div class="row justify-content-center">
+        <div class="col-lg-8">
+          <div class="upload-area p-4 rounded-lg">
+            <div class="mb-4">
+              <label for="resumeFile" class="form-label fw-bold">Select your resume (PDF format)</label>
+              <div class="file-upload-wrapper">
+                <input 
+                  type="file" 
+                  class="form-control form-control-lg custom-file-input" 
+                  id="resumeFile"
+                  accept=".pdf" 
+                  (change)="onFileSelected($event)"
+                >
+                <div class="file-upload-overlay">
+                  <span><i class="fas fa-cloud-upload-alt me-2"></i>Choose a file or drag here</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Selected File Display -->
+            <div class="selected-file-display fade-in mt-3" *ngIf="selectedFile">
+              <div class="pdf-file-indicator">
+                <i class="fas fa-file-pdf pdf-icon"></i>
+                <div class="file-details">
+                  <span class="file-name">{{ selectedFile.name }}</span>
+                  <span class="file-size">{{ formatFileSize(selectedFile.size) }}</span>
+                </div>
+                <button type="button" class="btn btn-sm btn-link remove-file" title="Remove file" (click)="removeSelectedFile($event)">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            </div>
+
+            <button 
+              class="btn btn-primary btn-lg px-5 py-3 mt-3 analyze-btn"
+              [disabled]="isLoading || !selectedFile"
+              (click)="uploadResume()"
+              [ngClass]="{'button-pulse': selectedFile && !isLoading}"
+            >
+              <i class="fas fa-rocket me-2" [ngClass]="{'fa-spin': isLoading}"></i>
+              <span>{{ isLoading ? 'Processing...' : 'Analyze Resume' }}</span>
+              <span class="btn-effect" *ngIf="selectedFile && !isLoading"></span>
+            </button>
+          </div>
+          
+          <!-- Error message with animation -->
+          <div class="alert alert-danger mt-3 fade-in" *ngIf="errorMessage">
+            <i class="fas fa-exclamation-circle me-2"></i>
+            {{ errorMessage }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results section with enhanced styling -->
+  <div *ngIf="uploadSuccess" class="results-container fade-in">
+    <div class="confetti-container" *ngIf="showConfetti">
+      <div class="confetti" *ngFor="let i of [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]" 
+           [ngStyle]="{'--confetti-color': getRandomColor(), '--fall-delay': i * 0.1 + 's', '--fall-distance': getRandomDistance()}">
+      </div>
+    </div>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2 class="fw-bold mb-0 gradient-text">Your Resume Analysis</h2>
+      <button class="btn btn-outline-primary" (click)="resetData()">
+        <i class="fas fa-upload me-2"></i>Upload New Resume
+      </button>
+    </div>
+    
+    <!-- Analyzed File Indicator -->
+    <div class="analyzed-file-indicator mb-4 fade-in">
+      <div class="d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center">
+          <i class="fas fa-file-pdf pdf-icon-sm me-2"></i>
+          <span class="analyzed-file-name">{{ resumeFileName }}</span>
+          <span class="analyzed-badge ms-2">Analyzed</span>
+        </div>
+        <div class="analyzed-timestamp text-muted" *ngIf="analysisTimestamp">
+          <i class="fas fa-history me-1"></i> {{ formatTimestamp(analysisTimestamp) }}
+        </div>
+      </div>
+    </div>
+    
+    <!-- Navigation tabs with modern styling and animations -->
+    <ul class="nav nav-tabs nav-fill border-0 mb-4 custom-tabs">
+      <li class="nav-item fade-in">
+        <a class="nav-link rounded-top px-4 py-3" 
+          [class.active]="activeTab === 'skills'" 
+          (click)="setActiveTab('skills')"
+          href="javascript:void(0)">
+          <i class="fas fa-chart-pie me-2"></i>Skills Analysis
+        </a>
+      </li>
+      <li class="nav-item fade-in delay-1">
+        <a class="nav-link rounded-top px-4 py-3" 
+          [class.active]="activeTab === 'jobs'" 
+          (click)="setActiveTab('jobs')"
+          href="javascript:void(0)">
+          <i class="fas fa-briefcase me-2"></i>Job Recommendations
+        </a>
+      </li>
+      <li class="nav-item fade-in delay-2">
+        <a class="nav-link rounded-top px-4 py-3" 
+          [class.active]="activeTab === 'courses'" 
+          (click)="setActiveTab('courses')"
+          href="javascript:void(0)">
+          <i class="fas fa-graduation-cap me-2"></i>Learning Opportunities
+        </a>
+      </li>
+    </ul>
+    
+    <!-- Skills Tab Content with enhanced cards -->
+    <div *ngIf="activeTab === 'skills'" class="tab-content fade-in">
+      <div class="row">
+        <!-- Extracted Skills -->
+        <div class="col-md-6 mb-4">
+          <div class="card h-100 shadow-sm border-0 card-hover-effect">
+            <div class="card-header py-3">
+              <h5 class="mb-0 gradient-text"><i class="fas fa-check-circle me-2"></i>Your Current Skills</h5>
+            </div>
+            <div class="card-body p-4">
+              <p class="card-text mb-4">We identified the following skills in your resume:</p>
+              <div class="skill-tags-container">
+                <span class="skill-tag primary-skill me-2 mb-2" *ngFor="let skill of extractedSkills">
+                  {{ skill }}
+                </span>
+              </div>
+              <div *ngIf="extractedSkills.length === 0 && !isLoading" class="alert alert-info mt-3">
+                <i class="fas fa-info-circle me-2"></i>No skills were extracted. Try uploading a different resume.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recommended Skills -->
+        <div class="col-md-6 mb-4">
+          <div class="card h-100 shadow-sm border-0 card-hover-effect">
+            <div class="card-header py-3">
+              <h5 class="mb-0 gradient-text"><i class="fas fa-lightbulb me-2"></i>Skills to Develop</h5>
+            </div>
+            <div class="card-body p-4">
+              <p class="card-text mb-4">Based on job market trends, consider developing these skills:</p>
+              <div class="skill-tags-container">
+                <span class="skill-tag secondary-skill me-2 mb-2" *ngFor="let skill of recommendedSkills">
+                  {{ skill }}
+                </span>
+              </div>
+              <div *ngIf="isLoading" class="text-center mt-3">
+                <div class="loader-sm">
+                  <div class="loader-inner-sm"></div>
+                </div>
+                <span class="ms-2">Analyzing market trends...</span>
+              </div>
+              <div *ngIf="recommendedSkills.length === 0 && !isLoading" class="alert alert-info mt-3">
+                <i class="fas fa-info-circle me-2"></i>No skill recommendations available at this time.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Skills Summary Card with modern design -->
+      <div class="card shadow-sm border-0 mb-4 card-hover-effect">
+        <div class="card-body p-4">
+          <h5 class="card-title fw-bold mb-3 gradient-text"><i class="fas fa-chart-line me-2"></i>Skills Gap Analysis</h5>
+          <p class="card-text">
+            Your resume shows strengths in <span class="fw-bold primary-text">{{ extractedSkills.slice(0, 3).join(', ') }}</span>.
+            To improve your marketability, consider developing skills in <span class="fw-bold secondary-text">{{ recommendedSkills.slice(0, 3).join(', ') }}</span>.
+          </p>
+          <div class="alert custom-alert border-0 mb-0 mt-3">
+            <i class="fas fa-info-circle me-2"></i>
+            <span>Adding the recommended skills to your resume can increase your interview chances by up to 30%.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Jobs Tab Content with modern cards -->
+    <div *ngIf="activeTab === 'jobs'" class="tab-content fade-in">
+      <h3 class="fw-bold mb-3 gradient-text"><i class="fas fa-briefcase me-2"></i>Job Recommendations</h3>
+      <p class="text-muted mb-4">Based on your skills, here are some job opportunities that might be a good fit for you.</p>
+      
+      <div *ngIf="isLoading" class="text-center my-5">
+        <div class="loader">
+          <div class="loader-inner"></div>
+        </div>
+        <p class="mt-3">Searching for the perfect job matches...</p>
+      </div>
+      
+      <!-- Error message with refresh button -->
+      <div *ngIf="!isLoading && errorMessage && isApiError" class="alert custom-alert mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <i class="fas fa-exclamation-circle me-2"></i>{{ errorMessage }}
+          </div>
+          <button class="btn btn-primary btn-sm" (click)="refreshJobs()">
+            <i class="fas fa-sync-alt me-2"></i>Refresh Jobs
+          </button>
+        </div>
+      </div>
+      
+      <!-- Simple error message without refresh button -->
+      <div *ngIf="!isLoading && errorMessage && !isApiError && recommendedJobs.length === 0" class="alert custom-alert">
+        <i class="fas fa-info-circle me-2"></i>{{ errorMessage }}
+      </div>
+      
+      <div *ngIf="!isLoading && recommendedJobs.length === 0" class="alert custom-alert">
+        <i class="fas fa-info-circle me-2"></i>No job recommendations found. Try uploading a different resume or adding more skills.
+      </div>
+      
+      <!-- Job Cards with modern design and hover effects -->
+      <div class="row">
+        <div class="col-md-6 mb-4 fade-in" *ngFor="let job of recommendedJobs; let i = index" [ngClass]="{'delay-1': i % 3 == 1, 'delay-2': i % 3 == 2}">
+          <div class="card h-100 shadow-sm border-0 job-card card-hover-effect">
+            <div class="card-header d-flex justify-content-between align-items-center py-3">
+              <h5 class="mb-0 text-truncate gradient-text" title="{{job.title}}">{{ job.title }}</h5>
+              <!-- Match percentage removed as requested -->
+            </div>
+            <div class="card-body p-4">
+              <div class="mb-3">
+                <h6 class="card-subtitle mb-1 fw-bold">{{ job.company }}</h6>
+                <p class="text-muted mb-0"><i class="fas fa-map-marker-alt me-2"></i>{{ job.location || 'Remote' }}</p>
+              </div>
+              
+              <p class="card-text mb-4">{{ (job.description || '').substring(0, 150) }}...</p>
+              
+              <div class="d-flex gap-2 mt-auto">
+                <button class="btn btn-primary apply-btn" (click)="getJobLinks(job.id)">
+                  <i class="fas fa-external-link-alt me-2"></i>Apply Now
+                </button>
+                <button class="btn btn-outline-primary save-btn" (click)="saveJob(job)">
+                  <i class="fas fa-bookmark me-2"></i>Save
+                </button>
+              </div>
+              <div class="mt-3">
+                <button class="btn btn-outline-info w-100 skills-btn" [routerLink]="['/job-skills', job.id]">
+                  <i class="fas fa-clipboard-list me-2"></i>View Required Skills
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Courses Tab Content with modern cards -->
+    <div *ngIf="activeTab === 'courses'" class="tab-content fade-in">
+      <h3 class="fw-bold mb-3 gradient-text"><i class="fas fa-graduation-cap me-2"></i>Learning Opportunities</h3>
+      <p class="text-muted mb-4">Recommended courses to help you develop new skills and advance your career.</p>
+      
+      <div *ngIf="isLoading" class="text-center my-5">
+        <div class="loader">
+          <div class="loader-inner"></div>
+        </div>
+        <p class="mt-3">Finding the best courses for your career growth...</p>
+      </div>
+      
+      <div *ngIf="!isLoading && recommendedCourses.length === 0" class="alert custom-alert">
+        <i class="fas fa-info-circle me-2"></i>No course recommendations available. Try selecting a different job title.
+      </div>
+      
+      <!-- Course Cards with modern design -->
+      <div class="row">
+        <div class="col-md-4 mb-4 fade-in" *ngFor="let course of recommendedCourses; let i = index" [ngClass]="{'delay-1': i % 3 == 1, 'delay-2': i % 3 == 2}">
+          <div class="card h-100 shadow-sm border-0 course-card card-hover-effect">
+            <div class="card-header py-3">
+              <h5 class="mb-0 text-truncate gradient-text" title="{{course.name}}">{{ course.name }}</h5>
+            </div>
+            <div class="card-body p-4">
+              <p class="card-text provider-name"><i class="fas fa-university me-2"></i>{{ course.provider || 'Coursera' }}</p>
+              <div class="d-flex align-items-center mb-3">
+                <div class="rating me-2">
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star-half-alt"></i>
+                </div>
+                <span class="text-muted">(4.5)</span>
+              </div>
+              <p class="course-level mb-0"><i class="fas fa-signal me-2"></i>{{ course.level || 'Intermediate' }}</p>
+              <a [href]="course.url" target="_blank" class="btn btn-primary mt-4 w-100 course-btn">
+                <i class="fas fa-external-link-alt me-2"></i>View Course
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,67 @@
+<div class="container mt-5 mb-5">
+  <div class="saved-jobs-container">
+    <!-- Header with title and clear all button -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2 class="fw-bold gradient-text"><i class="fas fa-bookmark me-2"></i>Saved Jobs</h2>
+      <button *ngIf="savedJobs.length > 0" class="btn btn-outline-danger" (click)="clearAllSavedJobs()">
+        <i class="fas fa-trash-alt me-2"></i>Clear All
+      </button>
+    </div>
+    
+    <!-- Loading spinner -->
+    <div *ngIf="isLoading" class="text-center my-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p class="mt-2 text-muted">Loading your saved jobs...</p>
+    </div>
+    
+    <!-- Error message -->
+    <div *ngIf="errorMessage" class="alert alert-danger">
+      <i class="fas fa-exclamation-circle me-2"></i>{{ errorMessage }}
+    </div>
+    
+    <!-- No saved jobs message -->
+    <div *ngIf="!isLoading && noSavedJobs" class="card shadow-lg border-0 mb-5 rounded-lg fade-in p-5 text-center">
+      <div class="empty-state">
+        <i class="fas fa-bookmark empty-icon mb-3"></i>
+        <h3 class="fw-bold">No Saved Jobs Yet</h3>
+        <p class="text-muted mb-4">You haven't saved any jobs yet. When you find interesting job opportunities, save them here for easy access.</p>
+        <a routerLink="/jobs" class="btn btn-primary">
+          <i class="fas fa-search me-2"></i>Browse Jobs
+        </a>
+      </div>
+    </div>
+    
+    <!-- Job Cards with modern design and hover effects -->
+    <div class="row" *ngIf="!isLoading && savedJobs.length > 0">
+      <div class="col-md-6 mb-4 fade-in" *ngFor="let job of savedJobs; let i = index" [ngClass]="{'delay-1': i % 3 == 1, 'delay-2': i % 3 == 2}">
+        <div class="card h-100 shadow-sm border-0 job-card card-hover-effect">
+          <div class="card-header d-flex justify-content-between align-items-center py-3">
+            <h5 class="mb-0 text-truncate gradient-text" title="{{job.title}}">{{ job.title }}</h5>
+            <button class="btn btn-sm btn-outline-danger" (click)="removeJob(job.id)">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+          <div class="card-body p-4">
+            <div class="mb-3">
+              <h6 class="card-subtitle mb-1 fw-bold">{{ job.company }}</h6>
+              <p class="text-muted mb-0"><i class="fas fa-map-marker-alt me-2"></i>{{ job.location || 'Remote' }}</p>
+            </div>
+            
+            <p class="card-text mb-4">{{ (job.description || '').substring(0, 150) }}...</p>
+            
+            <div class="d-flex gap-2 mt-auto">
+              <button class="btn btn-primary apply-btn" (click)="applyForJob(job)">
+                <i class="fas fa-external-link-alt me-2"></i>Apply Now
+              </button>
+              <span class="badge bg-success align-self-center ms-2" *ngIf="job.date_saved">
+                <i class="fas fa-calendar-alt me-1"></i>Saved {{ job.date_saved | date:'mediumDate' }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

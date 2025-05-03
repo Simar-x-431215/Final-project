@@ -1,0 +1,508 @@
+.cv-analysis-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: 'Roboto', sans-serif;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.header h2 {
+  color: #2c3e50;
+  font-size: 28px;
+  margin-bottom: 10px;
+}
+
+.header p {
+  color: #7f8c8d;
+  font-size: 16px;
+}
+
+/* Loading state */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid #f3f3f3;
+  border-top: 5px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Error state */
+.error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  margin: 30px 0;
+}
+
+.error-message {
+  display: flex;
+  align-items: center;
+  color: #e74c3c;
+  margin-bottom: 20px;
+}
+
+.error-message i {
+  font-size: 24px;
+  margin-right: 10px;
+}
+
+.retry-button {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s;
+}
+
+.retry-button:hover {
+  background-color: #2980b9;
+}
+
+/* Workflow steps */
+.workflow-steps {
+  margin-top: 30px;
+}
+
+.step-indicators {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 40px;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  position: relative;
+  z-index: 1;
+}
+
+.step-number {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #ecf0f1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: #7f8c8d;
+  margin-bottom: 10px;
+  transition: all 0.3s;
+}
+
+.step.active .step-number {
+  background-color: #3498db;
+  color: white;
+}
+
+.step.completed .step-number {
+  background-color: #2ecc71;
+  color: white;
+}
+
+.step-label {
+  font-size: 14px;
+  color: #7f8c8d;
+  text-align: center;
+  transition: color 0.3s;
+}
+
+.step.active .step-label, .step.completed .step-label {
+  color: #2c3e50;
+  font-weight: bold;
+}
+
+.step-connector {
+  flex-grow: 1;
+  height: 3px;
+  background-color: #ecf0f1;
+  margin: 0 10px;
+  position: relative;
+  top: -20px;
+  z-index: 0;
+}
+
+/* Step content */
+.step-content {
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  padding: 30px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  min-height: 400px;
+  display: flex;
+  flex-direction: column;
+}
+
+.section-header {
+  margin-bottom: 25px;
+}
+
+.section-header h3 {
+  color: #2c3e50;
+  font-size: 22px;
+  margin-bottom: 10px;
+}
+
+.section-header p {
+  color: #7f8c8d;
+  font-size: 15px;
+}
+
+/* Skills section */
+.skills-container {
+  flex-grow: 1;
+  margin-bottom: 30px;
+}
+
+.skills-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.skill-badge {
+  background-color: #3498db;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  display: inline-block;
+}
+
+/* Jobs section */
+.jobs-container {
+  flex-grow: 1;
+  margin-bottom: 30px;
+  overflow-y: auto;
+  max-height: 500px;
+}
+
+.jobs-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.job-card {
+  background-color: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  border: 2px solid transparent;
+}
+
+.job-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.job-card.selected {
+  border-color: #3498db;
+}
+
+.job-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+.job-header h4 {
+  color: #2c3e50;
+  font-size: 18px;
+  margin: 0;
+  flex-grow: 1;
+}
+
+.job-actions {
+  display: flex;
+}
+
+.save-button {
+  background: none;
+  border: none;
+  color: #bdc3c7;
+  cursor: pointer;
+  font-size: 18px;
+  padding: 5px;
+}
+
+.save-button.saved {
+  color: #f39c12;
+}
+
+.job-company {
+  color: #7f8c8d;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.job-location {
+  color: #7f8c8d;
+  font-size: 14px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+}
+
+.job-location i {
+  margin-right: 5px;
+  color: #e74c3c;
+}
+
+.job-description {
+  color: #34495e;
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: 15px;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.job-match {
+  display: flex;
+  align-items: center;
+}
+
+.match-label {
+  font-size: 14px;
+  color: #7f8c8d;
+  margin-right: 10px;
+}
+
+.match-score {
+  background-color: #2ecc71;
+  color: white;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+/* Skill gaps section */
+.skill-gaps-container {
+  flex-grow: 1;
+  margin-bottom: 30px;
+}
+
+.skill-gaps-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.skill-gap-card {
+  background-color: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.skill-name {
+  color: #2c3e50;
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 15px;
+}
+
+.skill-importance {
+  display: flex;
+  flex-direction: column;
+}
+
+.importance-label {
+  color: #7f8c8d;
+  font-size: 14px;
+  margin-bottom: 5px;
+}
+
+.importance-bar {
+  height: 8px;
+  background-color: #ecf0f1;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.importance-fill {
+  height: 100%;
+  background-color: #3498db;
+  border-radius: 4px;
+}
+
+/* Courses section */
+.courses-container {
+  flex-grow: 1;
+  margin-bottom: 30px;
+  overflow-y: auto;
+  max-height: 500px;
+}
+
+.courses-by-skill {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.skill-courses h4 {
+  color: #2c3e50;
+  font-size: 18px;
+  margin-bottom: 15px;
+  border-bottom: 2px solid #ecf0f1;
+  padding-bottom: 10px;
+}
+
+.courses-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.course-card {
+  background-color: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.course-name {
+  color: #2c3e50;
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.course-platform {
+  color: #7f8c8d;
+  font-size: 14px;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+}
+
+.course-platform i {
+  margin-right: 5px;
+  color: #f39c12;
+}
+
+.course-link {
+  display: inline-flex;
+  align-items: center;
+  color: #3498db;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.course-link i {
+  margin-left: 5px;
+}
+
+.course-link:hover {
+  text-decoration: underline;
+}
+
+/* Navigation buttons */
+.step-navigation {
+  display: flex;
+  justify-content: space-between;
+  margin-top: auto;
+}
+
+.back-button, .next-button, .finish-button {
+  display: flex;
+  align-items: center;
+  padding: 10px 20px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  border: none;
+}
+
+.back-button {
+  background-color: #ecf0f1;
+  color: #7f8c8d;
+}
+
+.back-button:hover {
+  background-color: #bdc3c7;
+}
+
+.back-button i {
+  margin-right: 8px;
+}
+
+.next-button {
+  background-color: #3498db;
+  color: white;
+}
+
+.next-button:hover {
+  background-color: #2980b9;
+}
+
+.next-button:disabled {
+  background-color: #bdc3c7;
+  cursor: not-allowed;
+}
+
+.next-button i {
+  margin-left: 8px;
+}
+
+.finish-button {
+  background-color: #2ecc71;
+  color: white;
+}
+
+.finish-button:hover {
+  background-color: #27ae60;
+}
+
+.finish-button i {
+  margin-right: 8px;
+}
+
+/* No data state */
+.no-data {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+  color: #7f8c8d;
+  font-style: italic;
+  text-align: center;
+}

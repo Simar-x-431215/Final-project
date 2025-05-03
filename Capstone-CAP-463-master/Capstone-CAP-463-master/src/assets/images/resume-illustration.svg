@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+  <!-- Background -->
+  <rect x="100" y="50" width="600" height="500" rx="20" ry="20" fill="#fff" stroke="#ddd" stroke-width="2"/>
+  
+  <!-- Header Section -->
+  <rect x="130" y="80" width="540" height="80" rx="5" ry="5" fill="#f5f7fa"/>
+  <circle cx="180" cy="120" r="30" fill="#e1e8ed"/>
+  <rect x="230" y="100" width="200" height="15" rx="2" ry="2" fill="#1976d2"/>
+  <rect x="230" y="125" width="150" height="10" rx="2" ry="2" fill="#b0bec5"/>
+  <rect x="450" y="100" width="180" height="40" rx="5" ry="5" fill="#f5f7fa" stroke="#ddd" stroke-width="1"/>
+  
+  <!-- Experience Section -->
+  <rect x="130" y="180" width="540" height="30" rx="3" ry="3" fill="#1976d2"/>
+  <text x="145" y="200" font-family="Arial" font-size="14" fill="#fff">EXPERIENCE</text>
+  
+  <!-- Experience Item 1 -->
+  <rect x="130" y="220" width="540" height="70" rx="3" ry="3" fill="#f5f7fa"/>
+  <rect x="145" y="230" width="200" height="12" rx="2" ry="2" fill="#546e7a"/>
+  <rect x="145" y="250" width="150" height="8" rx="2" ry="2" fill="#b0bec5"/>
+  <rect x="145" y="265" width="500" height="6" rx="2" ry="2" fill="#eceff1"/>
+  <rect x="145" y="275" width="480" height="6" rx="2" ry="2" fill="#eceff1"/>
+  
+  <!-- Experience Item 2 -->
+  <rect x="130" y="300" width="540" height="70" rx="3" ry="3" fill="#f5f7fa"/>
+  <rect x="145" y="310" width="180" height="12" rx="2" ry="2" fill="#546e7a"/>
+  <rect x="145" y="330" width="130" height="8" rx="2" ry="2" fill="#b0bec5"/>
+  <rect x="145" y="345" width="510" height="6" rx="2" ry="2" fill="#eceff1"/>
+  <rect x="145" y="355" width="490" height="6" rx="2" ry="2" fill="#eceff1"/>
+  
+  <!-- Skills Section -->
+  <rect x="130" y="390" width="540" height="30" rx="3" ry="3" fill="#1976d2"/>
+  <text x="145" y="410" font-family="Arial" font-size="14" fill="#fff">SKILLS</text>
+  
+  <!-- Skills Items -->
+  <rect x="145" y="430" width="70" height="25" rx="12.5" ry="12.5" fill="#bbdefb"/>
+  <rect x="225" y="430" width="90" height="25" rx="12.5" ry="12.5" fill="#bbdefb"/>
+  <rect x="325" y="430" width="80" height="25" rx="12.5" ry="12.5" fill="#bbdefb"/>
+  <rect x="415" y="430" width="70" height="25" rx="12.5" ry="12.5" fill="#bbdefb"/>
+  <rect x="495" y="430" width="100" height="25" rx="12.5" ry="12.5" fill="#bbdefb"/>
+  
+  <rect x="145" y="465" width="85" height="25" rx="12.5" ry="12.5" fill="#bbdefb"/>
+  <rect x="240" y="465" width="75" height="25" rx="12.5" ry="12.5" fill="#bbdefb"/>
+  <rect x="325" y="465" width="95" height="25" rx="12.5" ry="12.5" fill="#bbdefb"/>
+  <rect x="430" y="465" width="65" height="25" rx="12.5" ry="12.5" fill="#bbdefb"/>
+  
+  <!-- AI analysis visualization elements -->
+  <circle cx="650" cy="120" r="15" fill="#4caf50" opacity="0.8"/>
+  <path d="M643 120 L648 125 L657 116" stroke="#fff" stroke-width="2" fill="none"/>
+  
+  <circle cx="650" cy="260" r="15" fill="#ff9800" opacity="0.8"/>
+  <path d="M650 255 L650 265 M650 268 L650 268" stroke="#fff" stroke-width="2" fill="none"/>
+  
+  <circle cx="650" cy="340" r="15" fill="#4caf50" opacity="0.8"/>
+  <path d="M643 340 L648 345 L657 336" stroke="#fff" stroke-width="2" fill="none"/>
+  
+  <path d="M670 80 Q725 150 670 220" stroke="#2196f3" stroke-width="2" fill="none" stroke-dasharray="5,5"/>
+  <path d="M670 230 Q725 300 670 370" stroke="#2196f3" stroke-width="2" fill="none" stroke-dasharray="5,5"/>
+  <path d="M670 380 Q725 450 670 520" stroke="#2196f3" stroke-width="2" fill="none" stroke-dasharray="5,5"/>
+  
+  <!-- Animated elements (will appear to be scanning) -->
+  <rect x="130" y="510" width="540" height="20" rx="3" ry="3" fill="#f5f7fa">
+    <animate attributeName="opacity" values="0.4;1;0.4" dur="2s" repeatCount="indefinite"/>
+  </rect>
+</svg> 

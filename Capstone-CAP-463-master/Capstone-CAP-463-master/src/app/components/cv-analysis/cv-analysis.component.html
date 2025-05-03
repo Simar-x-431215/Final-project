@@ -1,0 +1,201 @@
+<div class="cv-analysis-container">
+  <div class="header">
+    <h2>CV Analysis & Career Recommendations</h2>
+    <p>We've analyzed your CV to help you find the perfect job match and improve your skills</p>
+  </div>
+
+  <!-- Loading state -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Analyzing your CV and finding the best matches...</p>
+  </div>
+
+  <!-- Error message -->
+  <div *ngIf="error" class="error-container">
+    <div class="error-message">
+      <i class="fas fa-exclamation-circle"></i>
+      <p>{{ error }}</p>
+    </div>
+    <button class="retry-button" (click)="runIntegratedWorkflow()">Try Again</button>
+  </div>
+
+  <!-- Workflow steps -->
+  <div *ngIf="!loading && !error" class="workflow-steps">
+    <div class="step-indicators">
+      <div class="step" [ngClass]="{'active': activeStep >= 1, 'completed': stepsCompleted.includes('skill_extraction')}" (click)="goToStep(1)">
+        <div class="step-number">1</div>
+        <div class="step-label">Skills Extraction</div>
+      </div>
+      <div class="step-connector"></div>
+      <div class="step" [ngClass]="{'active': activeStep >= 2, 'completed': stepsCompleted.includes('job_recommendations')}" (click)="goToStep(2)">
+        <div class="step-number">2</div>
+        <div class="step-label">Job Recommendations</div>
+      </div>
+      <div class="step-connector"></div>
+      <div class="step" [ngClass]="{'active': activeStep >= 3, 'completed': stepsCompleted.includes('skill_gaps')}" (click)="goToStep(3)">
+        <div class="step-number">3</div>
+        <div class="step-label">Skill Gaps</div>
+      </div>
+      <div class="step-connector"></div>
+      <div class="step" [ngClass]="{'active': activeStep >= 4, 'completed': stepsCompleted.includes('course_recommendations')}" (click)="goToStep(4)">
+        <div class="step-number">4</div>
+        <div class="step-label">Course Recommendations</div>
+      </div>
+    </div>
+
+    <!-- Step 1: Skills Extraction -->
+    <div *ngIf="activeStep === 1" class="step-content">
+      <div class="section-header">
+        <h3>Skills Extracted from Your CV</h3>
+        <p>We've identified the following skills from your CV:</p>
+      </div>
+      
+      <div class="skills-container">
+        <div *ngIf="extractedSkills.length === 0" class="no-data">
+          <p>No skills were extracted from your CV. Please try uploading a different CV.</p>
+        </div>
+        <div *ngIf="extractedSkills.length > 0" class="skills-list">
+          <div *ngFor="let skill of extractedSkills" class="skill-badge">
+            {{ skill }}
+          </div>
+        </div>
+      </div>
+      
+      <div class="step-navigation">
+        <button class="next-button" [disabled]="extractedSkills.length === 0" (click)="activeStep = 2">
+          Next: Job Recommendations
+          <i class="fas fa-arrow-right"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Step 2: Job Recommendations -->
+    <div *ngIf="activeStep === 2" class="step-content">
+      <div class="section-header">
+        <h3>Recommended Jobs Based on Your Skills</h3>
+        <p>Here are jobs that match your skills profile:</p>
+      </div>
+      
+      <div class="jobs-container">
+        <div *ngIf="jobRecommendations.length === 0" class="no-data">
+          <p>No job recommendations found. Try updating your CV with more skills.</p>
+        </div>
+        <div *ngIf="jobRecommendations.length > 0" class="jobs-list">
+          <div *ngFor="let job of jobRecommendations" class="job-card" [ngClass]="{'selected': selectedJob && selectedJob.job_id === job.job_id}" (click)="selectJob(job)">
+            <div class="job-header">
+              <h4>{{ job.title }}</h4>
+              <div class="job-actions">
+                <button class="save-button" [ngClass]="{'saved': job.saved}" (click)="saveJob(job); $event.stopPropagation()">
+                  <i class="fas" [ngClass]="job.saved ? 'fa-bookmark' : 'fa-bookmark-o'"></i>
+                </button>
+              </div>
+            </div>
+            <div class="job-company">{{ job.company_name }}</div>
+            <div class="job-location">
+              <i class="fas fa-map-marker-alt"></i>
+              {{ job.location }}
+            </div>
+            <div class="job-description">{{ job.description | slice:0:150 }}...</div>
+            <div class="job-match">
+              <div class="match-label">Match:</div>
+              <div class="match-score">{{ job.match_score || 85 }}%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="step-navigation">
+        <button class="back-button" (click)="activeStep = 1">
+          <i class="fas fa-arrow-left"></i>
+          Back: Skills
+        </button>
+        <button class="next-button" [disabled]="!selectedJob" (click)="selectJob(selectedJob)">
+          Next: Skill Gaps
+          <i class="fas fa-arrow-right"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Step 3: Skill Gaps -->
+    <div *ngIf="activeStep === 3" class="step-content">
+      <div class="section-header">
+        <h3>Skill Gaps for {{ selectedJob?.title || 'Selected Job' }}</h3>
+        <p>Here are the skills you need to develop to be more competitive for this role:</p>
+      </div>
+      
+      <div class="skill-gaps-container">
+        <div *ngIf="!selectedJob" class="no-data">
+          <p>Please select a job to see skill gaps.</p>
+        </div>
+        <div *ngIf="selectedJob && skillGaps.length === 0" class="no-data">
+          <p>Great news! No significant skill gaps were found for this job.</p>
+        </div>
+        <div *ngIf="selectedJob && skillGaps.length > 0" class="skill-gaps-list">
+          <div *ngFor="let gap of skillGaps" class="skill-gap-card">
+            <div class="skill-name">{{ gap.skill }}</div>
+            <div class="skill-importance">
+              <div class="importance-label">Importance:</div>
+              <div class="importance-bar">
+                <div class="importance-fill" [style.width.%]="gap.importance * 10"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="step-navigation">
+        <button class="back-button" (click)="activeStep = 2">
+          <i class="fas fa-arrow-left"></i>
+          Back: Jobs
+        </button>
+        <button class="next-button" [disabled]="skillGaps.length === 0" (click)="getCourseRecommendations()">
+          Next: Course Recommendations
+          <i class="fas fa-arrow-right"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Step 4: Course Recommendations -->
+    <div *ngIf="activeStep === 4" class="step-content">
+      <div class="section-header">
+        <h3>Recommended Courses to Bridge Your Skill Gaps</h3>
+        <p>Take these courses to improve your chances of landing your dream job:</p>
+      </div>
+      
+      <div class="courses-container">
+        <div *ngIf="getSkillsForCourses().length === 0" class="no-data">
+          <p>No course recommendations available. Try selecting a different job.</p>
+        </div>
+        <div *ngIf="getSkillsForCourses().length > 0" class="courses-by-skill">
+          <div *ngFor="let skill of getSkillsForCourses()" class="skill-courses">
+            <h4>Courses for {{ skill }}</h4>
+            <div class="courses-list">
+              <div *ngFor="let course of courseRecommendations[skill]" class="course-card">
+                <div class="course-name">{{ course.course_name }}</div>
+                <div class="course-platform">
+                  <i class="fas fa-graduation-cap"></i>
+                  {{ course.platform }}
+                </div>
+                <a [href]="course.course_url" target="_blank" class="course-link">
+                  View Course
+                  <i class="fas fa-external-link-alt"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="step-navigation">
+        <button class="back-button" (click)="activeStep = 3">
+          <i class="fas fa-arrow-left"></i>
+          Back: Skill Gaps
+        </button>
+        <button class="finish-button" *ngIf="workflowCompleted">
+          <i class="fas fa-check"></i>
+          Workflow Completed
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

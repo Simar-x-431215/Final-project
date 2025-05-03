@@ -1,0 +1,135 @@
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+      <h1 class="section-title">Job Recommendations</h1>
+      <p class="section-description">Find jobs that match your skills and experience</p>
+    </div>
+  </div>
+
+  <!-- Loading indicator -->
+  <div *ngIf="isLoading" class="loading-overlay">
+    <div class="spinner"></div>
+    <p>Processing your request...</p>
+  </div>
+
+  <!-- Error message -->
+  <div *ngIf="errorMessage" class="alert alert-danger">
+    {{ errorMessage }}
+  </div>
+
+  <!-- Job Search Section -->
+  <div class="row mb-4">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header">
+          <h2>Search Jobs</h2>
+        </div>
+        <div class="card-body">
+          <div class="search-form">
+            <div class="row">
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label for="searchQuery">Job Title or Keyword</label>
+                  <input type="text" id="searchQuery" class="form-control" [(ngModel)]="searchQuery" placeholder="e.g. Web Developer">
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label for="searchLocation">Location</label>
+                  <input type="text" id="searchLocation" class="form-control" [(ngModel)]="searchLocation" placeholder="e.g. Bangalore">
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label>Remote Work Options</label>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="remoteCheckbox" [(ngModel)]="isRemoteChecked" (change)="updateRemoteOption()">
+                    <label class="form-check-label" for="remoteCheckbox">
+                      Remote Jobs
+                    </label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="nonRemoteCheckbox" [(ngModel)]="isNonRemoteChecked" (change)="updateRemoteOption()">
+                    <label class="form-check-label" for="nonRemoteCheckbox">
+                      On-site Jobs
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="search-buttons mt-3">
+              <button class="btn btn-primary" (click)="searchJobs()">Search Jobs</button>
+              <button class="btn btn-outline-secondary ml-2" (click)="clearFilters()">Clear Filters</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Job Results Section -->
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header">
+          <h2>Job Results</h2>
+          <!-- Display message when using extracted skills -->
+          <div *ngIf="extractedSkills && extractedSkills.length > 0" class="alert alert-info">
+            <i class="fas fa-info-circle"></i> 
+            Showing jobs based on your extracted skills: 
+            <span class="badge bg-primary me-1" *ngFor="let skill of extractedSkills">{{skill}}</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <!-- Loading indicator -->
+          <div *ngIf="isLoading" class="text-center p-4">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2">Searching for jobs...</p>
+          </div>
+          
+          <div *ngIf="noResultsFound && !isLoading" class="no-results">
+            <p>{{errorMessage || 'No jobs found matching your criteria. Try adjusting your search parameters.'}}</p>
+          </div>
+          
+          <div class="job-list" *ngIf="jobs.length > 0 && !isLoading">
+            <div class="job-card" *ngFor="let job of jobs">
+              <div class="job-header">
+                <h3 class="job-title">{{ job.title }}</h3>
+                <span class="job-company">{{ job.company }}</span>
+              </div>
+              <div class="job-details">
+                <div class="job-location">
+                  <i class="fas fa-map-marker-alt"></i> {{ job.location }}
+                </div>
+                <div class="job-type">
+                  <i class="fas fa-briefcase"></i> {{ job.job_type }}
+                </div>
+                <div class="job-posted">
+                  <i class="fas fa-clock"></i> {{ job.posted_date }}
+                </div>
+                <div class="job-salary" *ngIf="job.salary">
+                  <i class="fas fa-money-bill-wave"></i> {{ job.salary }}
+                </div>
+              </div>
+              <div class="job-description">
+                <p>{{ job.description | slice:0:200 }}{{ job.description.length > 200 ? '...' : '' }}</p>
+              </div>
+              <div class="job-skills" *ngIf="job.skills && job.skills.length > 0">
+                <span class="skill-tag" *ngFor="let skill of job.skills.slice(0, 5)">{{ skill }}</span>
+                <span *ngIf="job.skills.length > 5">+{{ job.skills.length - 5 }} more</span>
+              </div>
+              <div class="job-actions">
+                <button class="btn btn-primary" (click)="showJobDetails(job)">View Details</button>
+                <button class="btn btn-outline-primary ml-2" (click)="saveJob(job)">
+                  <i class="fas fa-bookmark me-1"></i> Save Job
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
