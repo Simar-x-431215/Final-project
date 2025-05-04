@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
-import { catchError, map, tap, delay } from 'rxjs/operators';
+import { catchError, map, tap, delay, switchMap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -76,17 +76,32 @@ export class JobRecommenderService {
       });
     }
     
-    // Use all skills for a comprehensive search
-    const allSkills = skills.filter(skill => skill && skill.trim() !== '');
+    // Group skills by category for more relevant search
+    const skillGroups = this.groupSkillsByCategory(skills);
     
-    // Format skills with quotes for exact matching
-    const formattedQuery = allSkills
-      .map(skill => `"${skill.trim()}"`)
-      .join(' OR ');
+    // Create a query that requires at least one skill from each major category
+    const queryParts = [];
     
-    console.log('Using ALL skills for job search:', formattedQuery);
+    // Add programming languages and frameworks with OR between them
+    if (skillGroups.technical.length > 0) {
+      queryParts.push(`(${skillGroups.technical.map(skill => `"${skill.trim()}"`).join(' OR ')})`);
+    }
     
-    // Call the real-time job search API with all skills and request more results
+    // Add tools and technologies with OR between them
+    if (skillGroups.tools.length > 0) {
+      queryParts.push(`(${skillGroups.tools.map(skill => `"${skill.trim()}"`).join(' OR ')})`);
+    }
+    
+    // Add soft skills with OR between them
+    if (skillGroups.soft.length > 0) {
+      queryParts.push(`(${skillGroups.soft.map(skill => `"${skill.trim()}"`).join(' OR ')})`);
+    }
+    
+    // Join all parts with AND to ensure jobs match multiple categories
+    const formattedQuery = queryParts.join(' AND ');
+    console.log('Using categorized skills for job search:', formattedQuery);
+    
+    // Call the real-time job search API with the enhanced query
     return this.searchRealTimeJobs({
       query: formattedQuery,
       location: location || 'India',
@@ -94,7 +109,46 @@ export class JobRecommenderService {
       num_pages: '3' // Request 3 pages of results to get more jobs
     });
   }
-  
+
+  private groupSkillsByCategory(skills: string[]): { technical: string[], tools: string[], soft: string[] } {
+    const technicalSkills = [
+      'javascript', 'python', 'java', 'typescript', 'c++', 'react', 'angular', 
+      'vue', 'node', 'express', 'django', 'spring', 'php', '.net', 'ruby'
+    ];
+    
+    const toolsAndTech = [
+      'git', 'docker', 'kubernetes', 'aws', 'azure', 'gcp', 'jenkins', 'ci/cd',
+      'sql', 'mongodb', 'postgresql', 'mysql', 'redis', 'elasticsearch'
+    ];
+    
+    const softSkills = [
+      'communication', 'leadership', 'teamwork', 'problem solving', 'agile', 
+      'scrum', 'project management', 'analytical', 'collaboration'
+    ];
+    
+    const grouped: { technical: string[], tools: string[], soft: string[] } = {
+      technical: [],
+      tools: [],
+      soft: []
+    };
+    
+    skills.forEach(skill => {
+      const skillLower = skill.toLowerCase();
+      if (technicalSkills.some(tech => skillLower.includes(tech))) {
+        grouped.technical.push(skill);
+      } else if (toolsAndTech.some(tool => skillLower.includes(tool))) {
+        grouped.tools.push(skill);
+      } else if (softSkills.some(soft => skillLower.includes(soft))) {
+        grouped.soft.push(skill);
+      } else {
+        // If skill doesn't match any category, add it to technical by default
+        grouped.technical.push(skill);
+      }
+    });
+    
+    return grouped;
+  }
+
   // Method 2: Search jobs with all parameters (for jobs page)
   searchJobs(params: any): Observable<any> {
     console.log('Searching jobs with params:', params);
@@ -234,9 +288,6 @@ export class JobRecommenderService {
   getJobRequiredSkills(jobId: string): Observable<any> {
     console.log('Getting required skills for job ID:', jobId);
     
-    // In a real application, you would make an HTTP request to get required skills
-    // For now, we'll use the recommended_skills function logic from the Python code
-    
     // First, try to get the job from localStorage
     let job: any = null;
     const savedJobsJson = localStorage.getItem('savedJobs');
@@ -254,47 +305,127 @@ export class JobRecommenderService {
         }
       }
     }
-    
-    // If we found the job, extract skills from description or use mock skills
+
     if (job) {
-      // Extract skills from job description or use existing skills if available
-      let skills: string[] = [];
-      
+      // If we have the job details, extract skills or use existing skills
       if (job.skills && job.skills.length > 0) {
-        // Use existing skills if available
-        skills = job.skills;
-      } else {
-        // In a real application, you would use NLP to extract skills from the job description
-        // For now, we'll use some common tech skills as a placeholder
-        skills = [
-          'JavaScript', 'TypeScript', 'Angular', 'React', 'Node.js', 
-          'HTML', 'CSS', 'Git', 'Agile', 'Communication'
-        ];
+        // Return existing skills if available
+        return of({
+          success: true,
+          skills: job.skills
+        });
+      } else if (job.job_description || job.description) {
+        // Extract skills from job description using backend API
+        return this.http.post(`${this.apiUrl}/skills/extract/`, {
+          text: job.job_description || job.description
+        }).pipe(
+          map((response: any) => {
+            if (response.success && response.skills) {
+              // Cache the skills in the job object
+              job.skills = response.skills;
+              this.updateJobInStorage(job);
+              return {
+                success: true,
+                skills: response.skills
+              };
+            }
+            throw new Error('Failed to extract skills from job description');
+          }),
+          catchError(error => {
+            console.error('Error extracting skills:', error);
+            // Fallback to keyword-based extraction
+            return this.extractSkillsFromDescription(job.job_description || job.description);
+          })
+        );
       }
-      
-      return of({
-        success: true,
-        skills: skills
-      }).pipe(
-        delay(800) // Simulate network delay
-      );
-    } else {
-      // If job not found, make a real API call to get skills
-      // This would connect to the Python backend's recommended_skills function
-      
-      // For demo purposes, we'll return mock skills
-      const mockSkills = [
-        'JavaScript', 'TypeScript', 'Angular', 'React', 'Node.js',
-        'HTML', 'CSS', 'Python', 'SQL', 'Communication',
-        'Problem Solving', 'Team Collaboration', 'API Development'
-      ];
-      
-      return of({
-        success: true,
-        skills: mockSkills
-      }).pipe(
-        delay(800) // Simulate network delay
-      );
+    }
+
+    // If we don't have the job details, try to fetch them from the API
+    return this.getJobDetails(jobId).pipe(
+      switchMap((jobResponse: any) => {
+        if (jobResponse.success && jobResponse.job) {
+          const jobData = jobResponse.job;
+          return this.http.post(`${this.apiUrl}/skills/extract/`, {
+            text: jobData.description
+          }).pipe(
+            map((response: any) => ({
+              success: true,
+              skills: response.skills || this.extractCommonSkills(jobData.description)
+            })),
+            catchError(() => this.extractSkillsFromDescription(jobData.description))
+          );
+        }
+        return this.provideFallbackSkills();
+      }),
+      catchError(() => this.provideFallbackSkills())
+    );
+  }
+
+  private extractSkillsFromDescription(description: string): Observable<any> {
+    // Simple keyword-based skill extraction as fallback
+    const commonSkills = [
+      'JavaScript', 'TypeScript', 'Python', 'Java', 'C++', 'React', 'Angular', 'Vue.js',
+      'Node.js', 'Express', 'MongoDB', 'SQL', 'REST API', 'Git', 'AWS', 'Azure',
+      'Docker', 'Kubernetes', 'CI/CD', 'Agile', 'Scrum', 'Communication'
+    ];
+    
+    const foundSkills = commonSkills.filter(skill => 
+      description.toLowerCase().includes(skill.toLowerCase())
+    );
+
+    return of({
+      success: true,
+      skills: foundSkills.length > 0 ? foundSkills : this.extractCommonSkills(description)
+    });
+  }
+
+  private extractCommonSkills(description: string): string[] {
+    // Provide a basic set of skills based on job description keywords
+    const techStack = description.toLowerCase().includes('frontend') || description.toLowerCase().includes('front-end') ?
+      ['HTML', 'CSS', 'JavaScript', 'React/Angular', 'UI/UX'] :
+      description.toLowerCase().includes('backend') || description.toLowerCase().includes('back-end') ?
+        ['Node.js', 'Python', 'Databases', 'API Development', 'Server Management'] :
+        ['Programming', 'Problem Solving', 'Team Collaboration', 'Communication', 'Project Management'];
+
+    return techStack;
+  }
+
+  private provideFallbackSkills(): Observable<any> {
+    return of({
+      success: true,
+      skills: [
+        'Programming',
+        'Problem Solving',
+        'Communication',
+        'Team Collaboration',
+        'Project Management'
+      ]
+    });
+  }
+
+  private updateJobInStorage(job: any): void {
+    // Update job in localStorage if it exists
+    const savedJobsJson = localStorage.getItem('savedJobs');
+    if (savedJobsJson) {
+      const savedJobs = JSON.parse(savedJobsJson);
+      const index = savedJobs.findIndex((j: any) => j.id === job.id);
+      if (index !== -1) {
+        savedJobs[index] = job;
+        localStorage.setItem('savedJobs', JSON.stringify(savedJobs));
+      }
+    }
+
+    // Update in recentAnalysis if it exists
+    const recentAnalysisJson = localStorage.getItem('recentAnalysis');
+    if (recentAnalysisJson) {
+      const recentAnalysis = JSON.parse(recentAnalysisJson);
+      if (recentAnalysis.recommendedJobs) {
+        const index = recentAnalysis.recommendedJobs.findIndex((j: any) => j.id === job.id);
+        if (index !== -1) {
+          recentAnalysis.recommendedJobs[index] = job;
+          localStorage.setItem('recentAnalysis', JSON.stringify(recentAnalysis));
+        }
+      }
     }
   }
 }

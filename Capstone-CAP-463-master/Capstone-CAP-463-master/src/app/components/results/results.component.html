@@ -247,7 +247,7 @@
                 </button>
               </div>
               <div class="mt-3">
-                <button class="btn btn-outline-info w-100 skills-btn" [routerLink]="['/job-skills', job.id]">
+                <button class="btn btn-outline-info w-100 skills-btn" (click)="viewJobSkills(job)">
                   <i class="fas fa-clipboard-list me-2"></i>View Required Skills
                 </button>
               </div>

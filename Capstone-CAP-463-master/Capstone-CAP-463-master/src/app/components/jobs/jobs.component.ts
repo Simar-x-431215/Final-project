@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { JobRecommenderService } from '../../services/job-recommender.service';
 import { IntegratedWorkflowService } from '../../services/integrated-workflow.service';
 import { 
@@ -35,6 +36,7 @@ export class JobsComponent implements OnInit {
   objectKeys = Object.keys;
 
   constructor(
+    private router: Router,
     private jobRecommenderService: JobRecommenderService,
     private workflowService: IntegratedWorkflowService
   ) { }
@@ -350,5 +352,26 @@ Application: No direct application link is available for this job. Please search
       alert('This job is already in your saved jobs.');
       console.log('Job already exists in saved jobs');
     }
+  }
+
+  viewJobSkills(job: Job): void {
+    // Store the job details in localStorage for the job skills component
+    const existingAnalysis = localStorage.getItem('recentAnalysis') || '{}';
+    const analysisData = JSON.parse(existingAnalysis);
+    
+    // Update or add the recommendedJobs array with this job
+    if (!analysisData.recommendedJobs) {
+      analysisData.recommendedJobs = [];
+    }
+    
+    // Add this job if it's not already in the array
+    if (!analysisData.recommendedJobs.find((j: Job) => j.id === job.id)) {
+      analysisData.recommendedJobs.push(job);
+    }
+    
+    localStorage.setItem('recentAnalysis', JSON.stringify(analysisData));
+    
+    // Navigate to job skills view
+    this.router.navigate(['/job-skills', job.id]);
   }
 }

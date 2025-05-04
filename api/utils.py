@@ -35,14 +35,37 @@ def extract_skills(text):
     if not nlp:
         return "Error: NLP model not loaded"
     
-    skills = []
     try:
+        # Predefined categories of technical skills
+        skill_categories = {
+            'programming_languages': ['python', 'java', 'javascript', 'typescript', 'c++', 'c#', 'ruby', 'php', 'swift', 'kotlin'],
+            'frameworks': ['react', 'angular', 'vue', 'django', 'flask', 'spring', 'express', 'laravel', '.net'],
+            'databases': ['sql', 'mysql', 'postgresql', 'mongodb', 'redis', 'elasticsearch', 'oracle'],
+            'cloud': ['aws', 'azure', 'gcp', 'docker', 'kubernetes', 'terraform'],
+            'tools': ['git', 'jenkins', 'jira', 'kubernetes', 'docker', 'ci/cd', 'maven', 'gradle'],
+            'soft_skills': ['communication', 'teamwork', 'leadership', 'problem solving', 'agile', 'scrum']
+        }
+        
+        # Convert text to lowercase for matching
+        text_lower = text.lower()
+        
+        # Extract skills using spaCy for named entity recognition
         docs = nlp(text)
-        for doc in docs.ents:
-            skills.append(str.lower(doc.text))
-        skills = list(set(skills))
-        st = ', '.join(skills)
-        return st
+        skills = set([str.lower(doc.text) for doc in docs.ents])
+        
+        # Add skills from categories if found in text
+        for category in skill_categories.values():
+            for skill in category:
+                # Use word boundary check to avoid partial matches
+                if f' {skill} ' in f' {text_lower} ':
+                    skills.add(skill)
+        
+        # Remove common false positives and duplicates
+        skills = {skill for skill in skills if len(skill) > 2}  # Remove very short terms
+        
+        # Convert set to sorted list and join
+        skills_list = sorted(list(skills))
+        return ', '.join(skills_list)
     except Exception as e:
         print(f"Error extracting skills: {e}")
         return ''
@@ -68,12 +91,39 @@ def recommended_jobs(user_skills, job_listings_df=None):
             job_listings_df = pd.read_csv("Job_listings.csv")
             job_listings_df['Skills'] = job_listings_df['description'].apply(lambda x: extract_skills(x))
         
-        all_skills = [user_skills] + job_listings_df["Skills"].tolist()  # Combine user skills & job skills
-        vectorizer = TfidfVectorizer()
-        skill_vectors = vectorizer.fit_transform(all_skills)  # Convert text to numerical vectors
-        cosine_sim = cosine_similarity(skill_vectors[0:1], skill_vectors[1:])  # Compare user skills with jobs
-        job_listings_df["Similarity Score"] = cosine_sim[0]
-        recommended_jobs = job_listings_df.sort_values(by="Similarity Score", ascending=False)
+        # Convert user_skills to list if it's a string
+        user_skills_list = user_skills.split(', ') if isinstance(user_skills, str) else user_skills
+        
+        # Calculate match scores for each job
+        job_scores = []
+        for _, job in job_listings_df.iterrows():
+            job_skills = job['Skills'].split(', ') if isinstance(job['Skills'], str) else []
+            
+            # Calculate different types of matches
+            exact_matches = len(set(user_skills_list) & set(job_skills))
+            partial_matches = sum(any(user_skill in job_skill.lower() or job_skill in user_skill.lower() 
+                                   for job_skill in job_skills)
+                               for user_skill in user_skills_list)
+            
+            # Calculate coverage (what percentage of required skills the user has)
+            coverage = exact_matches / len(job_skills) if job_skills else 0
+            
+            # Calculate relevance (what percentage of user's skills are useful for this job)
+            relevance = exact_matches / len(user_skills_list) if user_skills_list else 0
+            
+            # Calculate final score (weighted combination)
+            score = (0.4 * coverage) + (0.4 * relevance) + (0.2 * (partial_matches / len(user_skills_list) if user_skills_list else 0))
+            
+            job_scores.append(score)
+        
+        # Add scores to dataframe
+        job_listings_df["Similarity Score"] = job_scores
+        
+        # Sort by score and ensure minimum threshold
+        recommended_jobs = job_listings_df[job_listings_df["Similarity Score"] > 0.2].sort_values(
+            by="Similarity Score", ascending=False
+        )
+        
         return recommended_jobs
     except Exception as e:
         print(f"Error getting recommended jobs: {e}")

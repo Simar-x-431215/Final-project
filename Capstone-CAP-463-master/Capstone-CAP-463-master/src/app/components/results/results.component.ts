@@ -490,4 +490,22 @@ export class ResultsComponent implements OnInit {
   refreshJobs(): void {
     this.getJobRecommendations();
   }
+
+  // Method to navigate to job skills view
+  viewJobSkills(job: Job): void {
+    // Store the job details in localStorage for the job skills component
+    const analysisData = {
+      ...JSON.parse(localStorage.getItem('recentAnalysis') || '{}'),
+      recommendedJobs: [
+        ...(JSON.parse(localStorage.getItem('recentAnalysis') || '{}').recommendedJobs || [])
+          .filter((j: Job) => j.id !== job.id),
+        job
+      ]
+    };
+    
+    localStorage.setItem('recentAnalysis', JSON.stringify(analysisData));
+    
+    // Navigate to job skills view
+    this.router.navigate(['/job-skills', job.id]);
+  }
 }
